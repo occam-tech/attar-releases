@@ -134,12 +134,12 @@ def path_inside(path, base):
 
 
 class NoDowngradeRedirectHandler(urllib.request.HTTPRedirectHandler):
-    def redirect_request(self, request, fp, code, message, newurl):
+    def redirect_request(self, request, fp, code, message, headers, newurl):
         old_scheme = urllib.parse.urlparse(request.full_url).scheme.lower()
         new_scheme = urllib.parse.urlparse(newurl).scheme.lower()
         if old_scheme == "https" and new_scheme != "https":
             die("refusing HTTPS redirect to " + new_scheme)
-        return super().redirect_request(request, fp, code, message, newurl)
+        return super().redirect_request(request, fp, code, message, headers, newurl)
 
 
 def copy_download(url, destination, allow_file=True):
