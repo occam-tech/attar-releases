@@ -20,4 +20,15 @@ attar doctor
 attar init my-app --template tsx
 attar build my-app
 ```
+
+## macOS 15+ Apple silicon
+
+Requires macOS 15 or newer on Apple silicon and Xcode Command Line Tools (CLT). If needed, install CLT with `xcode-select --install`.
+
+The Homebrew formula is published in the `occam-tech/attar` tap:
+
+```sh
+brew tap occam-tech/attar
+brew install occam-tech/attar/attar
+```
 Release metadata is in `index.json` and is authenticated by `index.json.asc`.
