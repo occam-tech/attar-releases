@@ -4,6 +4,11 @@
 # index or an independent release signature.
 set -eu
 
+if ! command -v python3 >/dev/null 2>&1; then
+    echo "ATTAR_DIST_INSTALL_FAIL Python 3.11 or later is required; install python3" >&2
+    exit 1
+fi
+
 exec python3 - "$@" <<'PY'
 import argparse
 import errno
@@ -17,6 +22,7 @@ import re
 import shutil
 import stat
 import subprocess
+import sys
 import tarfile
 import tempfile
 import urllib.error
@@ -178,6 +184,26 @@ def host_target():
     if system == "Darwin" and machine in ("arm64", "aarch64"):
         return MACOS_TARGET
     die("unsupported host for release discovery: " + system + "/" + machine)
+
+
+def require_command(name, package):
+    if shutil.which(name) is None:
+        die("missing host prerequisite " + name + "; install " + package)
+
+
+def validate_host_prerequisites():
+    target = host_target()
+    if target == LINUX_TARGET:
+        # The release configuration remains the owner of the glibc floor.  We
+        # only reject a non-glibc Linux host before downloading the archive.
+        host_glibc_version()
+        require_command("readelf", "binutils")
+    return target
+
+
+def validate_python_prerequisite():
+    if sys.version_info < (3, 11):
+        die("Python 3.11 or later is required")
 
 
 def command_output(command, label):
@@ -653,18 +679,25 @@ def main():
     parser.add_argument("--url")
     parser.add_argument("--version")
     parser.add_argument("--sha256")
-    parser.add_argument("--channel", choices=("stable", "dev"), default="stable")
+    parser.add_argument("--channel", choices=("stable", "dev"), default="dev")
     parser.add_argument("--prefix", default="~/.local/share/attar")
     parser.add_argument("--bin-dir", default="~/.local/bin")
     args = parser.parse_args()
+    validate_python_prerequisite()
     if args.url is None:
         if args.sha256 is not None:
             die("--sha256 requires --url in explicit install mode")
+        validate_host_prerequisites()
+        require_command("gpg", "gpg and gpgv")
+        require_command("gpgv", "gpg and gpgv")
         args.version, args.url, args.sha256 = discover_release(args.channel, args.version)
+        if args.channel == "dev":
+            print("ATTAR_DIST_INSTALL_PREVIEW channel=dev version=" + args.version + "; this is a development preview", file=sys.stderr)
         args.discovered = True
     else:
         if args.version is None or args.sha256 is None:
             die("explicit install mode requires --url, --version, and --sha256")
+        validate_host_prerequisites()
         args.discovered = False
     install(args)
 
