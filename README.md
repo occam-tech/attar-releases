@@ -62,8 +62,8 @@ Release metadata is in `index.json` and is authenticated by `index.json.asc`.
 
 ## macOS development update
 
-Homebrew installs `0.1.0-dev.7620.g57143d8614b3`. Linux/APT and the archive installer default remain `0.1.0-dev.7409.ge99759d41293`. To install this macOS update with the archive installer, use:
+Homebrew installs `0.1.0-dev.7626.g0415c6dab5ef`. Linux/APT and the archive installer default remain `0.1.0-dev.7409.ge99759d41293`. To install this macOS update with the archive installer, use:
 
 ```sh
-sh install.sh --channel dev --version 0.1.0-dev.7620.g57143d8614b3
+sh install.sh --channel dev --version 0.1.0-dev.7626.g0415c6dab5ef
 ```
